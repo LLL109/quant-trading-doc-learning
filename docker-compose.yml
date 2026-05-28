@@ -1,0 +1,24 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8040:8040"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://rate-rfc-motorcycles-neighbor.trycloudflare.com
+    ports:
+      - "8041:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
