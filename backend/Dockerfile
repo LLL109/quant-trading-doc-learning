@@ -11,6 +11,8 @@ COPY . .
 
 RUN mkdir -p /app/data
 
+ENV PYTHONPATH=/app
+
 RUN python3 scripts/import_content.py || true
 RUN python3 scripts/import_quizzes.py || true
 
