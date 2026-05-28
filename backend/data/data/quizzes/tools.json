@@ -1,0 +1,172 @@
+[
+  {
+    "knowledge_slug": "data-sources",
+    "questions": [
+      {
+        "question": "以下哪个属于免费数据源？",
+        "question_type": "choice",
+        "options": ["A. Wind万得", "B. 东方财富Choice", "C. AKShare", "D. 聚宽JQData"],
+        "answer": "C",
+        "explanation": "AKShare是完全免费、开源的Python财经数据接口库，不需要注册或付费。Wind万得和东方财富Choice是付费数据源（年费数万元），聚宽JQData按量付费。Tushare社区版也免费，但本题选项中只有AKShare是免费的。",
+        "difficulty": "简单"
+      },
+      {
+        "question": "判断题：免费数据源的数据质量都很差，不适合量化研究使用。",
+        "question_type": "true_false",
+        "answer": "错",
+        "explanation": "这是一个常见误区。AKShare、Tushare等免费数据源的质量已经能满足大部分学习和研究需求。虽然付费数据源（如Wind）数据更全面、更稳定，但免费数据源对于入门和个人研究来说已经足够。数据质量关键在于使用前做充分的质量检查，而非单纯看价格。",
+        "difficulty": "简单"
+      },
+      {
+        "question": "填空题：在数据类型中，______数据指的是逐笔成交数据，获取难度最大，通常需要付费购买。",
+        "question_type": "fill",
+        "answer": "Tick",
+        "explanation": "Tick数据是逐笔成交数据，记录了每一笔交易的价格、数量、时间等信息，数据量极大。相比日线、分钟线等数据，Tick数据的获取难度最大，通常需要从交易所直接购买或通过付费数据源（如Wind、Choice）获取。",
+        "difficulty": "中等"
+      },
+      {
+        "question": "获取股票数据后，以下哪项不属于数据质量检查的必要内容？",
+        "question_type": "choice",
+        "options": ["A. 检查是否存在缺失值", "B. 检查价格是否经过复权处理", "C. 检查数据源的股价是否与自己预期一致", "D. 检查日期序列的连续性"],
+        "answer": "C",
+        "explanation": "数据质量检查的四个维度是：完整性（缺失值）、准确性（复权处理等）、及时性（更新频率）、一致性（不同来源是否一致）。'与自己预期一致'不是客观的质量标准，股价的涨跌由市场决定，不应以个人预期作为数据正确性的判断依据。",
+        "difficulty": "中等"
+      },
+      {
+        "question": "填空题：股票发生分红送股后，如果不进行______处理，会导致价格序列出现断崖式下跌，使回测结果失真。",
+        "question_type": "fill",
+        "answer": "复权",
+        "explanation": "复权是指对股票价格进行调整，消除分红、送股、配股等事件对价格的影响。前复权（qfq）以最新价格为基准向前调整，后复权（hfq）以上市价格为基准向后调整。不做复权处理的话，除权日的价格会突然下降，形成假的下跌信号，严重影响回测准确性。",
+        "difficulty": "中等"
+      }
+    ]
+  },
+  {
+    "knowledge_slug": "akshare",
+    "questions": [
+      {
+        "question": "使用AKShare获取A股日线行情时，adjust=\"qfq\"参数的含义是什么？",
+        "question_type": "choice",
+        "options": ["A. 不复权", "B. 后复权", "C. 前复权", "D. 等比复权"],
+        "answer": "C",
+        "explanation": "在AKShare的stock_zh_a_hist函数中，adjust参数控制复权方式：\"qfq\"表示前复权（以最新价格为基准向前调整），\"hfq\"表示后复权，空字符串\"\"表示不复权。前复权是最常用的方式，因为它保证最新价格与实际价格一致，便于分析。",
+        "difficulty": "简单"
+      },
+      {
+        "question": "判断题：AKShare完全免费，因此可以无限制地高频调用接口获取数据。",
+        "question_type": "true_false",
+        "answer": "错",
+        "explanation": "虽然AKShare本身免费，但其底层数据来源于东方财富、新浪等网站。如果调用过于频繁，可能会被这些数据源网站封禁IP。因此在使用时应适当加延时（如time.sleep），避免短时间内大量请求，这也是AKShare官方文档中的建议。",
+        "difficulty": "简单"
+      },
+      {
+        "question": "以下关于AKShare的描述，哪项是正确的？",
+        "question_type": "choice",
+        "options": ["A. 使用前需要注册并获取API token", "B. 返回的数据格式为Python字典", "C. 可以获取Level2逐笔成交数据", "D. 接口返回的是pandas DataFrame格式"],
+        "answer": "D",
+        "explanation": "AKShare的核心优势之一是Python原生，所有接口返回的都是pandas DataFrame格式，可以直接用pandas进行数据处理。它不需要注册或token（区别于Tushare），不返回字典格式，也不提供Level2数据（Level2需要付费数据源）。",
+        "difficulty": "中等"
+      },
+      {
+        "question": "填空题：使用AKShare获取沪深300指数日线数据时，应调用的函数是stock_zh_index_daily，传入参数symbol=\"______\"。",
+        "question_type": "fill",
+        "answer": "sh000300",
+        "explanation": "沪深300指数在上海证券交易所发布，代码为000300。在AKShare中，指数代码需要加交易所前缀，上交所为\"sh\"，深交所为\"sz\"，因此沪深300指数的完整代码为\"sh000300\"。类似的，上证指数为\"sh000001\"，深证成指为\"sz399001\"。",
+        "difficulty": "中等"
+      },
+      {
+        "question": "以下哪个不是AKShare的局限性？",
+        "question_type": "choice",
+        "options": ["A. 分钟线数据有限", "B. 部分数据历史深度不够", "C. 需要按年支付数万元费用", "D. 依赖数据源网站，接口偶尔变动"],
+        "answer": "C",
+        "explanation": "AKShare的局限性包括：主要是日线数据（分钟线有限）、部分数据历史不够长、依赖数据源网站稳定性、无Level2数据。但AKShare是完全免费的，不需要支付任何费用。需要按年付费的是Wind万得、东方财富Choice等专业付费数据源。",
+        "difficulty": "简单"
+      }
+    ]
+  },
+  {
+    "knowledge_slug": "python-stack",
+    "questions": [
+      {
+        "question": "在Python量化技术栈中，以下哪个库被标注为数据处理层的\"必学\"级别？",
+        "question_type": "choice",
+        "options": ["A. scipy", "B. ta-lib", "C. plotly", "D. pandas"],
+        "answer": "D",
+        "explanation": "在量化技术栈中，数据处理层的必学库是pandas（数据处理、时间序列）和numpy（数值计算）。scipy属于分析计算层（推荐级别），ta-lib是技术指标计算（可选），plotly属于可视化层（推荐级别）。pandas是量化开发中最核心的数据处理工具。",
+        "difficulty": "简单"
+      },
+      {
+        "question": "判断题：学习量化投资必须先学完所有Python库才能开始实践。",
+        "question_type": "true_false",
+        "answer": "错",
+        "explanation": "这是一个常见误区。实际上，pandas + matplotlib + AKShare这三个工具就能开始量化之旅。量化学习应该边学边做，先用基础工具实现简单策略，再根据需要逐步学习更多库。追求学完所有库才开始，反而会拖延进度。",
+        "difficulty": "简单"
+      },
+      {
+        "question": "在量化开发中，专门用于绘制K线图的Python库是______。",
+        "question_type": "fill",
+        "answer": "mplfinance",
+        "explanation": "mplfinance是专门用于金融数据可视化的Python库，可以方便地绘制K线图（蜡烛图）、成交量柱状图等。matplotlib是通用绑图库（基础级别），plotly是交互式图表库（推荐级别），但mplfinance是专门为金融K线图设计的，使用起来最方便。",
+        "difficulty": "中等"
+      },
+      {
+        "question": "以下哪个工具最适合用于量化策略的交互式分析和原型开发？",
+        "question_type": "choice",
+        "options": ["A. Docker", "B. Jupyter Notebook", "C. Git", "D. VS Code"],
+        "answer": "B",
+        "explanation": "Jupyter Notebook支持代码、文字、图表混合展示，可以逐个单元格运行并立即查看结果，非常适合数据探索和策略原型开发。VS Code适合代码编写和调试，Git用于版本控制，Docker用于环境隔离和部署，它们各有用途但不是交互式分析的首选。",
+        "difficulty": "中等"
+      },
+      {
+        "question": "填空题：在Python量化回测中，计算夏普比率时需要将日度夏普比率年化，常用的年化因子是______的平方根。",
+        "question_type": "fill",
+        "answer": "252",
+        "explanation": "252是A股市场一年的平均交易日数。在计算年化夏普比率时，公式为：Sharpe_annual = Sharpe_daily * sqrt(252)。这是因为在假设收益率独立同分布的条件下，年化标准差 = 日标准差 * sqrt(252)，年化均值 = 日均值 * 252，两者相除得到年化夏普比率。",
+        "difficulty": "困难"
+      }
+    ]
+  },
+  {
+    "knowledge_slug": "quant-system",
+    "questions": [
+      {
+        "question": "量化交易系统的核心架构通常包含哪四个主要层次？",
+        "question_type": "choice",
+        "options": ["A. 数据层、策略层、执行层、监控层", "B. 数据层、模型层、交易层、风控层", "C. 采集层、计算层、存储层、展示层", "D. 数据层、分析层、执行层、报告层"],
+        "answer": "A",
+        "explanation": "量化交易系统的标准四层架构是：数据层（数据采集、清洗、存储）、策略层（因子计算、信号生成、仓位计算）、执行层（订单管理、风控检查、交易执行）、监控层（绩效分析、风险监控、告警通知）。这四个层次覆盖了从数据获取到交易执行再到事后监控的完整流程。",
+        "difficulty": "中等"
+      },
+      {
+        "question": "判断题：搭建个人量化系统时，应该一开始就追求大而全的架构设计，使用微服务、消息队列等企业级技术。",
+        "question_type": "true_false",
+        "answer": "错",
+        "explanation": "这是量化系统设计的常见误区。个人量化系统应该从小开始、逐步迭代，先实现核心功能（数据+策略+回测），再添加风控、监控等模块。SQLite + pandas + 简单脚本就能开始，不需要微服务、消息队列（如Kafka、RabbitMQ）等重型架构。过度设计会增加开发和维护成本。",
+        "difficulty": "简单"
+      },
+      {
+        "question": "在量化系统的数据层中，负责处理缺失值、异常值和复权等操作的组件是______。",
+        "question_type": "fill",
+        "answer": "数据清洗器",
+        "explanation": "数据层包含四个组件：数据采集器（从各数据源获取原始数据）、数据清洗器（处理缺失值、异常值、复权等）、数据存储（数据库或文件存储）、数据服务（提供统一查询接口）。数据清洗器是保证数据质量的关键环节，直接影响后续策略的准确性。",
+        "difficulty": "中等"
+      },
+      {
+        "question": "在量化系统的数据流中，信号生成之后、订单生成之前，必须经过哪个环节？",
+        "question_type": "choice",
+        "options": ["A. 数据采集", "B. 因子计算", "C. 风控检查", "D. 绩效分析"],
+        "answer": "C",
+        "explanation": "量化系统的标准数据流是：数据采集 -> 数据清洗 -> 数据存储 -> 数据查询 -> 因子计算 -> 信号生成 -> 仓位计算 -> 风控检查 -> 订单生成 -> 交易执行。在信号生成之后、订单生成之前，必须经过仓位计算和风控检查，确保交易在风险控制范围内。",
+        "difficulty": "中等"
+      },
+      {
+        "question": "以下关于量化系统中风控管理器的描述，哪项是正确的？",
+        "question_type": "choice",
+        "options": ["A. 风控检查应该放在交易执行之后进行", "B. 单只股票的仓位上限是风控的常见约束条件之一", "C. 风控模块只需要在策略开发阶段运行", "D. 风控管理器的主要职责是计算收益指标"],
+        "answer": "B",
+        "explanation": "风控管理器的核心职责是交易前的风险检查，常见约束包括：单只股票仓位上限（如不超过总资金的20%）、最大回撤限制、行业集中度限制等。风控检查必须在交易执行之前进行（而非之后），且需要在每次交易时运行（不仅仅是开发阶段）。计算收益指标是监控层的绩效分析模块的职责。",
+        "difficulty": "困难"
+      }
+    ]
+  }
+]
