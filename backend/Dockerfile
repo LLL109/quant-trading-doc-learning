@@ -13,8 +13,8 @@ RUN mkdir -p /app/data
 
 ENV PYTHONPATH=/app
 
-RUN python3 scripts/import_content.py || true
-RUN python3 scripts/import_quizzes.py || true
+RUN PYTHONPATH=/app python3 scripts/import_content.py || true
+RUN PYTHONPATH=/app python3 scripts/import_quizzes.py || true
 
 EXPOSE ${PORT:-8040}
 
