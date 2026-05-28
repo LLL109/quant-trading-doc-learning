@@ -27,12 +27,27 @@ export default function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
           onClick={onMenuClick}
           className="p-1.5 rounded-lg lg:hidden"
           style={{ color: "var(--text-secondary)" }}
+          aria-label="打开导航"
         >
           <Menu className="w-5 h-5" />
         </button>
+        <Link href="/" className="flex items-center gap-2 lg:hidden">
+          <span
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold"
+            style={{ backgroundColor: "var(--accent-green)", color: "var(--bg-primary)" }}
+          >
+            Q
+          </span>
+          <span
+            className="font-semibold text-sm"
+            style={{ fontFamily: "JetBrains Mono, monospace" }}
+          >
+            QuantLearn
+          </span>
+        </Link>
       </div>
 
-      <nav className="flex items-center gap-4 md:gap-6">
+      <nav className="flex items-center gap-3 sm:gap-4 md:gap-6">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname.startsWith(item.href);

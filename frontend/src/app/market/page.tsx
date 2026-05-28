@@ -32,7 +32,6 @@ export default function MarketPage() {
 
   // 获取K线数据
   useEffect(() => {
-    setLoading(true);
     fetch(`${API_BASE}/api/market/kline?code=${code}&period=${period}`)
       .then((res) => res.json())
       .then(setKlineData)
@@ -43,7 +42,6 @@ export default function MarketPage() {
   // 搜索
   useEffect(() => {
     if (searchQuery.length < 1) {
-      setSearchResults([]);
       return;
     }
     const timer = setTimeout(() => {
@@ -56,6 +54,7 @@ export default function MarketPage() {
   }, [searchQuery]);
 
   const selectStock = (stock: SearchResult) => {
+    setLoading(true);
     setCode(stock.code);
     setStockName(stock.name);
     setSearchQuery("");
@@ -64,19 +63,25 @@ export default function MarketPage() {
 
   return (
     <div className="max-w-6xl mx-auto py-8">
-      <div className="flex items-center justify-between mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h1 className="text-xl md:text-2xl font-bold" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
           行情看板
         </h1>
 
         {/* 搜索框 */}
-        <div className="relative w-full max-w-72">
+        <div className="relative w-full sm:max-w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-muted)' }} />
           <input
             type="text"
             placeholder="搜索股票代码或名称..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearchQuery(value);
+              if (value.length < 1) {
+                setSearchResults([]);
+              }
+            }}
             className="w-full pl-10 pr-4 py-2 rounded-lg text-sm outline-none"
             style={{
               backgroundColor: 'var(--bg-tertiary)',
@@ -106,14 +111,14 @@ export default function MarketPage() {
       </div>
 
       {/* 股票信息 + 周期切换 */}
-      <div className="flex items-center gap-4 mb-4">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-4">
+        <div className="flex items-center gap-2 min-w-0">
           <BarChart2 className="w-5 h-5" style={{ color: 'var(--accent-green)' }} />
-          <span className="font-medium">{stockName}</span>
+          <span className="font-medium truncate">{stockName}</span>
           <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{code}</span>
         </div>
 
-        <div className="flex gap-1 ml-auto">
+        <div className="flex gap-1 sm:ml-auto overflow-x-auto pb-1 sm:pb-0">
           {[
             { key: "daily", label: "日K" },
             { key: "weekly", label: "周K" },
@@ -121,7 +126,10 @@ export default function MarketPage() {
           ].map((p) => (
             <button
               key={p.key}
-              onClick={() => setPeriod(p.key)}
+              onClick={() => {
+                if (period !== p.key) setLoading(true);
+                setPeriod(p.key);
+              }}
               className="px-3 py-1 rounded text-sm"
               style={{
                 backgroundColor: period === p.key ? 'var(--accent-green-dim)' : 'var(--bg-tertiary)',
@@ -146,7 +154,7 @@ export default function MarketPage() {
             无数据
           </div>
         ) : (
-          <KLineChart data={klineData} height={450} showVolume={true} />
+          <KLineChart data={klineData} height={450} mobileHeight={340} showVolume={true} />
         )}
       </div>
 

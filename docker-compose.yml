@@ -16,9 +16,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: https://rate-rfc-motorcycles-neighbor.trycloudflare.com
+        NEXT_PUBLIC_API_URL: ""
     ports:
       - "8041:3000"
+    environment:
+      BACKEND_URL: http://backend:8040
     depends_on:
       - backend
     restart: unless-stopped

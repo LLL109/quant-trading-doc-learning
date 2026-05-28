@@ -12,6 +12,7 @@ import {
   ChevronDown,
   ChevronUp,
   HelpCircle,
+  X,
 } from "lucide-react";
 import { fetchKnowledgeDetail, fetchQuizzes, type KnowledgePoint, type QuizItem } from "@/lib/api";
 import MarkdownRenderer from "@/components/knowledge/MarkdownRenderer";
@@ -58,9 +59,16 @@ function QuizSection({ knowledgePointId }: { knowledgePointId: number }) {
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const toggleExpanded = () => {
+    const nextExpanded = !expanded;
+    setExpanded(nextExpanded);
+    if (nextExpanded && quizzes.length === 0) {
+      setLoading(true);
+    }
+  };
+
   useEffect(() => {
     if (expanded && quizzes.length === 0) {
-      setLoading(true);
       fetchQuizzes(knowledgePointId)
         .then(setQuizzes)
         .catch(() => {})
@@ -71,7 +79,7 @@ function QuizSection({ knowledgePointId }: { knowledgePointId: number }) {
   return (
     <div className="mt-12">
       <button
-        onClick={() => setExpanded(!expanded)}
+        onClick={toggleExpanded}
         className="flex items-center gap-2 w-full p-4 rounded-xl transition-colors"
         style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-color)" }}
       >
@@ -106,22 +114,28 @@ export default function KnowledgeDetailPage() {
   const [status, setStatus] = useState<
     "not_started" | "learning" | "mastered"
   >("not_started");
+  const [mobileTocOpen, setMobileTocOpen] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
     fetchKnowledgeDetail(slug)
-      .then(setData)
-      .catch((e) => setError(e.message))
+      .then((detail) => {
+        setData(detail);
+        setError(null);
+      })
+      .catch((e) => {
+        setData(null);
+        setError(e.message);
+      })
       .finally(() => setLoading(false));
   }, [slug]);
 
+  const content = data?.content ?? "";
   const toc = useMemo(() => {
-    if (!data?.content) return [];
-    return extractToc(data.content);
-  }, [data?.content]);
+    if (!content) return [];
+    return extractToc(content);
+  }, [content]);
 
-  if (loading) {
+  if (loading || (data && data.slug !== slug)) {
     return (
       <div className="max-w-4xl mx-auto py-8">
         <div className="animate-pulse space-y-4">
@@ -163,12 +177,12 @@ export default function KnowledgeDetailPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-8 flex gap-8">
+    <div className="max-w-5xl mx-auto py-4 sm:py-8 flex gap-8">
       {/* Main content */}
       <div className="flex-1 min-w-0">
         {/* Breadcrumb */}
         <nav
-          className="flex items-center gap-2 text-sm mb-6"
+          className="flex items-center gap-2 text-sm mb-6 overflow-x-auto whitespace-nowrap pb-1"
           style={{ color: "var(--text-muted)" }}
         >
           <Link href="/" className="hover:underline">
@@ -194,7 +208,7 @@ export default function KnowledgeDetailPage() {
             >
               {data.title}
             </h1>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <span
                 className="text-sm px-2 py-0.5 rounded"
                 style={{
@@ -212,7 +226,7 @@ export default function KnowledgeDetailPage() {
           </div>
 
           {/* Study status toggle */}
-          <div className="flex gap-2 shrink-0">
+          <div className="flex gap-2 shrink-0 overflow-x-auto pb-1 sm:pb-0">
             {(Object.keys(statusLabels) as Array<keyof typeof statusLabels>).map(
               (s) => {
                 const Icon = statusIcons[s];
@@ -245,6 +259,22 @@ export default function KnowledgeDetailPage() {
             )}
           </div>
         </div>
+
+        {toc.length > 0 && (
+          <button
+            onClick={() => setMobileTocOpen(true)}
+            className="lg:hidden fixed right-4 bottom-5 z-30 flex items-center gap-2 px-3 py-2 rounded-full text-sm shadow-lg"
+            style={{
+              backgroundColor: "var(--bg-card)",
+              border: "1px solid var(--border-hover)",
+              color: "var(--text-primary)",
+            }}
+            aria-label="打开目录"
+          >
+            <List className="w-4 h-4" />
+            目录
+          </button>
+        )}
 
         {/* Markdown content */}
         <article className="prose-custom">
@@ -386,6 +416,58 @@ export default function KnowledgeDetailPage() {
             </nav>
           </div>
         </aside>
+      )}
+
+      {toc.length > 0 && mobileTocOpen && (
+        <div className="lg:hidden fixed inset-0 z-50">
+          <button
+            className="absolute inset-0 w-full h-full bg-black/50"
+            onClick={() => setMobileTocOpen(false)}
+            aria-label="关闭目录"
+          />
+          <div
+            className="absolute left-0 right-0 bottom-0 max-h-[70vh] overflow-y-auto rounded-t-2xl p-4"
+            style={{
+              backgroundColor: "var(--bg-card)",
+              borderTop: "1px solid var(--border-color)",
+            }}
+          >
+            <div
+              className="flex items-center gap-2 mb-3 text-sm font-semibold"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              <List className="w-4 h-4" />
+              目录
+              <button
+                onClick={() => setMobileTocOpen(false)}
+                className="ml-auto p-1.5 rounded-lg"
+                style={{ color: "var(--text-muted)" }}
+                aria-label="关闭目录"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <nav className="space-y-1">
+              {toc.map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  onClick={() => setMobileTocOpen(false)}
+                  className="block rounded-lg px-2 py-2 text-sm transition-colors"
+                  style={{
+                    paddingLeft: `${8 + (item.level - 1) * 14}px`,
+                    color:
+                      item.level === 1
+                        ? "var(--text-primary)"
+                        : "var(--text-muted)",
+                  }}
+                >
+                  {item.text}
+                </a>
+              ))}
+            </nav>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -13,9 +13,9 @@ RUN mkdir -p /app/data
 
 ENV PYTHONPATH=/app
 
-RUN PYTHONPATH=/app python3 scripts/import_content.py || true
-RUN PYTHONPATH=/app python3 scripts/import_quizzes.py || true
+RUN uv run python scripts/import_content.py
+RUN uv run python scripts/import_quizzes.py
 
-EXPOSE ${PORT:-8040}
+EXPOSE 8040
 
-CMD ["sh", "-c", "uv run uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8040}"]
+CMD ["./start.sh"]

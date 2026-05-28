@@ -171,7 +171,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
       style={{
-        width: '280px',
+        width: 'min(280px, calc(100vw - 40px))',
         backgroundColor: 'var(--bg-secondary)',
         borderRight: '1px solid var(--border-color)',
       }}
@@ -251,6 +251,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       <Link
                         key={item.slug}
                         href={`/k/${item.slug}`}
+                        onClick={onClose}
                         className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors"
                         style={{
                           color: isActive ? 'var(--accent-green)' : 'var(--text-muted)',

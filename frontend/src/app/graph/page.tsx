@@ -66,7 +66,7 @@ export default function GraphPage() {
 
   // 按分类分组，圆形排列
   const categories = [...new Set(data.nodes.map((n) => n.category))];
-  const nodesWithPos = data.nodes.map((node, i) => {
+  const nodesWithPos = data.nodes.map((node) => {
     const catIdx = categories.indexOf(node.category);
     const catNodes = data.nodes.filter((n) => n.category === node.category);
     const nodeIdx = catNodes.indexOf(node);

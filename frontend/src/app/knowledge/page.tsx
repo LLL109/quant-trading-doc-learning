@@ -34,7 +34,6 @@ function KnowledgeContent() {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    setLoading(true);
     const fetcher = searchQuery
       ? searchKnowledge(searchQuery)
       : fetchKnowledgeList(activeCategory || undefined);
@@ -58,6 +57,7 @@ function KnowledgeContent() {
       <div className="flex flex-wrap gap-3 mb-8">
         <button
           onClick={() => {
+            setLoading(true);
             setActiveCategory("");
             setSearchQuery("");
           }}
@@ -80,6 +80,7 @@ function KnowledgeContent() {
           <button
             key={cat}
             onClick={() => {
+              setLoading(true);
               setActiveCategory(cat);
               setSearchQuery("");
             }}

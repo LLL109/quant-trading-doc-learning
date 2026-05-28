@@ -293,6 +293,14 @@ code:not(pre code) {
     padding: 8px 10px;
     font-size: 13px;
   }
+
+  .prose-custom table {
+    min-width: 560px;
+  }
+
+  .prose-custom blockquote {
+    padding: 0.75rem 0.875rem;
+  }
 }
 
 /* 触屏设备：代码块复制按钮始终可见 */

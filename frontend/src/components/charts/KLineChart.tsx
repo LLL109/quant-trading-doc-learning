@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { createChart, ColorType, CandlestickSeries, HistogramSeries } from "lightweight-charts";
+import {
+  createChart,
+  ColorType,
+  CandlestickSeries,
+  HistogramSeries,
+  type Time,
+} from "lightweight-charts";
 
 interface KLineChartProps {
   data: {
@@ -13,10 +19,16 @@ interface KLineChartProps {
     volume: number;
   }[];
   height?: number;
+  mobileHeight?: number;
   showVolume?: boolean;
 }
 
-export default function KLineChart({ data, height = 400, showVolume = true }: KLineChartProps) {
+export default function KLineChart({
+  data,
+  height = 400,
+  mobileHeight = 320,
+  showVolume = true,
+}: KLineChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<ReturnType<typeof createChart> | null>(null);
 
@@ -28,9 +40,12 @@ export default function KLineChart({ data, height = 400, showVolume = true }: KL
       chartRef.current = null;
     }
 
+    const getChartHeight = () =>
+      window.matchMedia("(max-width: 640px)").matches ? mobileHeight : height;
+
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
-      height: height,
+      height: getChartHeight(),
       layout: {
         background: { type: ColorType.Solid, color: "#0a0e17" },
         textColor: "#94a3b8",
@@ -58,7 +73,7 @@ export default function KLineChart({ data, height = 400, showVolume = true }: KL
       wickDownColor: "#ff6b6b",
     });
     candleSeries.setData(data.map((d) => ({
-      time: d.date as any,
+      time: d.date as Time,
       open: d.open,
       high: d.high,
       low: d.low,
@@ -73,7 +88,7 @@ export default function KLineChart({ data, height = 400, showVolume = true }: KL
       });
       chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
       volumeSeries.setData(data.map((d) => ({
-        time: d.date as any,
+        time: d.date as Time,
         value: d.volume,
         color: d.close >= d.open ? "rgba(0,212,170,0.3)" : "rgba(255,107,107,0.3)",
       })));
@@ -83,17 +98,23 @@ export default function KLineChart({ data, height = 400, showVolume = true }: KL
 
     const handleResize = () => {
       if (chartContainerRef.current) {
-        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+        chart.applyOptions({
+          width: chartContainerRef.current.clientWidth,
+          height: getChartHeight(),
+        });
       }
     };
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(chartContainerRef.current);
     window.addEventListener("resize", handleResize);
 
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener("resize", handleResize);
       chart.remove();
       chartRef.current = null;
     };
-  }, [data, height, showVolume]);
+  }, [data, height, mobileHeight, showVolume]);
 
   return <div ref={chartContainerRef} />;
 }

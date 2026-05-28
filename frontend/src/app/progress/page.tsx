@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchProgressStats, type ProgressStats } from "@/lib/api";
-import { BookOpen, TrendingUp, CheckCircle, Clock } from "lucide-react";
+import { BookOpen, CheckCircle, Clock } from "lucide-react";
 
 export default function ProgressPage() {
   const [stats, setStats] = useState<ProgressStats | null>(null);

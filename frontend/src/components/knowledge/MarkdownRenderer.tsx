@@ -1,11 +1,11 @@
 "use client";
 
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import Link from "next/link";
-import { useState } from "react";
+import { Children, isValidElement, type ReactNode, useState } from "react";
 import { Copy, Check, ChevronDown, ChevronRight, Code2 } from "lucide-react";
 
 const PYTHON_LANGS = [
@@ -14,17 +14,39 @@ const PYTHON_LANGS = [
   "language-python3",
 ];
 
+interface CodeElementProps {
+  className?: string;
+  children?: ReactNode;
+}
+
+function getTextContent(children: ReactNode): string {
+  return Children.toArray(children)
+    .map((child) => {
+      if (typeof child === "string" || typeof child === "number") {
+        return String(child);
+      }
+      if (isValidElement<CodeElementProps>(child)) {
+        return getTextContent(child.props.children);
+      }
+      return "";
+    })
+    .join("");
+}
+
+function getCodeClassName(children: ReactNode): string {
+  const firstChild = Children.toArray(children)[0];
+  return isValidElement<CodeElementProps>(firstChild)
+    ? firstChild.props.className ?? ""
+    : "";
+}
+
 // Code block: copy button + Python folding
-function CodeBlock({ children }: { children: any }) {
+function CodeBlock({ children }: { children: ReactNode }) {
   const [copied, setCopied] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
 
-  const code =
-    typeof children?.props?.children === "string"
-      ? children.props.children
-      : "";
-
-  const langClass: string = children?.props?.className || "";
+  const code = getTextContent(children);
+  const langClass = getCodeClassName(children);
   const isPython = PYTHON_LANGS.some((l) => langClass.includes(l));
   const langLabel = langClass.replace("language-", "") || "code";
 
@@ -124,9 +146,9 @@ function CodeBlock({ children }: { children: any }) {
 }
 
 // Custom component mapping
-const components = {
+const components: Components = {
   // Wiki links: detect /k/ prefixed links
-  a: ({ href, children, ...props }: any) => {
+  a: ({ href, children, ...props }) => {
     if (href && href.startsWith("/k/")) {
       return (
         <Link href={href} className="wiki-link">
@@ -142,41 +164,38 @@ const components = {
   },
 
   // Code blocks: copy + Python folding
-  pre: ({ children }: any) => <CodeBlock>{children}</CodeBlock>,
+  pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
 
   // Table wrapper for responsive scrolling
-  table: ({ children, ...props }: any) => (
+  table: ({ children, ...props }) => (
     <div className="overflow-x-auto my-4">
       <table {...props}>{children}</table>
     </div>
   ),
 
   // Headings with anchor IDs for TOC
-  h1: ({ children, ...props }: any) => (
+  h1: ({ children, ...props }) => (
     <h1 id={generateId(children)} {...props}>
       {children}
     </h1>
   ),
-  h2: ({ children, ...props }: any) => (
+  h2: ({ children, ...props }) => (
     <h2 id={generateId(children)} {...props}>
       {children}
     </h2>
   ),
-  h3: ({ children, ...props }: any) => (
+  h3: ({ children, ...props }) => (
     <h3 id={generateId(children)} {...props}>
       {children}
     </h3>
   ),
 };
 
-function generateId(children: any): string {
-  if (typeof children === "string") {
-    return children
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^\w一-鿿-]/g, "");
-  }
-  return "";
+function generateId(children: ReactNode): string {
+  return getTextContent(children)
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w一-鿿-]/g, "");
 }
 
 function stripFrontmatter(content: string): string {
