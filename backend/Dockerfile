@@ -11,6 +11,6 @@ COPY . .
 
 RUN mkdir -p /app/data
 
-EXPOSE 8040
+EXPOSE ${PORT:-8040}
 
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8040"]
+CMD ["sh", "-c", "uv run uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8040}"]
