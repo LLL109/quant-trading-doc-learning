@@ -56,7 +56,7 @@ def seed_database():
             if script_path.exists():
                 print(f"Running {script_name}...")
                 result = subprocess.run(
-                    [sys.executable, str(script_path)],
+                    ["uv", "run", "python", str(script_path)],
                     capture_output=True, text=True, cwd=str(project_root)
                 )
                 if result.stdout:
